@@ -24,3 +24,15 @@
     ```
 - Done!
 
+## Configuration
+- Set timezone
+```bash
+# get current setting
+$ cat /etc/timezones
+$ timedatactl
+# get available timezones
+$ timedatectl list-timezones
+# set timezone
+$ sudo timedatactl set-timezone `[Timezone]`
+```
+
