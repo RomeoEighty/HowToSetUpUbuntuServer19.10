@@ -26,6 +26,7 @@
 
 ## Configuration
 - Set timezone
+
 ```bash
 # get current setting
 $ cat /etc/timezones
@@ -35,4 +36,75 @@ $ timedatectl list-timezones
 # set timezone
 $ sudo timedatactl set-timezone `[Timezone]`
 ```
+
+- Install neovim
+```bash
+$ sudo add-apt-repository ppa:neovim-ppa/unstable
+$ sudo apt-get update
+$ sudo apt-get install -y neovim
+# Prerequisites for the Python modules
+$ sudo apt-get install -y python-dev python-pip python3-dev python3-pip
+# set editor
+$ sudo update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60
+$ sudo update-alternatives --config vi
+$ sudo update-alternatives --install /usr/bin/vim vim /usr/bin/nvim 60
+$ sudo update-alternatives --config vim
+$ sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 60
+$ sudo update-alternatives --config editor
+```
+
+## Security
+### SSH setting
+- Generate the SSH key
+    - On client
+    <pre>
+    $ ssh-keygen -t ed25519 -o -a 100
+    Generating public/private ed25519 key pair.
+    Enter file in which to save the key ($HOME/.ssh/id_ed25519): $HOME/.ssh/id_ed25519_foo
+    Enter passphrase (empty for no passphrase):
+    Enter same passphrase again: [<b>DO NOT USE EMPTY PASSPHRASE</b>]
+    Your identification has been saved in $HOME/.ssh/id_ed25519_foo.
+    Your public key has been saved in $HOME/.ssh/id_ed25519_foo.pub.
+    The key fingerprint is:
+    SHA256: ***
+    The key's randomart image is:
+    +--[ED25519 256]--+
+    |                 |
+    |                 |
+    |                 |
+    |                 |
+    |                 |
+    |                 |
+    |                 |
+    |                 |
+    |                 |
+    +----[SHA256]-----+
+    $ cat ~/.ssh/id_ed25519_foo.pub | pbcopy # or use ssh-copy-id
+    </pre>
+    - Store the public key on server
+    ```bash
+    $ touch ~/.ssh/authorized_keys
+    $ chmod 600 ~/.ssh/authorized_keys
+    ```
+- `ssh-agent`
+```bash
+# On macOS
+$ eval $(ssh-agent) # put this line into the shell profile
+$ ssh-add -K ~/.ssh/id_ed25519_foo
+```
+
+- Change SSH port from 22
+    - edit `/etc/ssh/sshd_config`. Uncomment `port 22` and select random number from 49152-65535 which is in dynamic, private or ephemeral ports.
+    ```bash
+    # restart ssh
+    $ sudo systemctl restart ssh
+    ```
+
+- Set firewall
+    - `ufw`
+    ```bash
+    $ sudo ufw status verbose
+    $ sudo ufw default DENY
+    $ sudo ufw allow [port number]/tcp comment [comment]
+    ```
 
