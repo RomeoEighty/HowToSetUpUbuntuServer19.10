@@ -86,11 +86,51 @@ $ sudo update-alternatives --config editor
     $ touch ~/.ssh/authorized_keys
     $ chmod 600 ~/.ssh/authorized_keys
     ```
+
 - `ssh-agent`
+
+If you have to use bastion servers to connect your server like a figure below. Don't put ssh key on the bastion server. By using `ssh-agent`, you can use key authentication with your server without telling the bastion server your private key.
+
+```
+    ,--------.  SSH  ,---------.  SSH  ,-------------.
+    | client | ----- | bastion | ----- | your server |
+    `--------'       `---------'       `-------------'
+```
+
 ```bash
 # On macOS
 $ eval $(ssh-agent) # put this line into the shell profile
 $ ssh-add -K ~/.ssh/id_ed25519_foo
+$ cat ~/.ssh/config
+
+# macOS specific configuration
+Host *
+    UseKeychain yes
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/id_rsa
+...
+Host servername
+    HostName ip
+    User user
+    Port num
+    IdentityFile ~/.ssh/id_ed25519_foo
+    ForwardAgent yes
+...
+
+$ ssh -A <user@bastion>
+# On the bastion server
+$ cat ~/.ssh/config
+
+...
+Host servername
+    HostName ip
+    User user
+    Port num
+    ForwardAgent yes
+# You don't need to put a private key on bastion server!
+...
+
+$ ssh servername
 ```
 
 - Change SSH port from 22
